@@ -86,12 +86,12 @@ bool inExplored(vector<vector<int>> explored, vector<vector<int>> pos_states){
     // loop until there is no more possible states (move_up, move_down,etc.) left
     while(!(pos_states.empty())){
         cur_pos_state = {};
-        //temp_explored = explored; // assign our explored states to temp_explored
+        temp_explored = explored; // assign our explored states to temp_explored
         // for loop to get current possible state (move_up, move_down,etc.)
         cout << "cur_pos_state: ";
         for(int i = 0; i<pos_states.front().size(); i++){
-            cout << pos_states.front()[i];
-            cur_pos_state.push_back(pos_states.front()[i]);
+            cout << pos_states.back()[i];
+            cur_pos_state.push_back(pos_states.back()[i]);
         }
         cout << endl;
             // for loop to get the current explored state
@@ -99,17 +99,17 @@ bool inExplored(vector<vector<int>> explored, vector<vector<int>> pos_states){
             cur_explored_state = {}; // clear
             cout << "cur_explore state: ";
             for(int j =0; j<temp_explored.front().size(); j++){
-                cout << temp_explored.front()[j];
-                cur_explored_state.push_back(temp_explored.front()[j]);
+                cout << temp_explored.back()[j];
+                cur_explored_state.push_back(temp_explored.back()[j]);
             }
             cout << endl;
             if(cur_explored_state == cur_pos_state)
                 return true;
             else
                 temp_explored.pop_back();
-
+            cout << endl;
         }
-        cout << "out" << endl;
+        ///cout << "out" << endl;
         pos_states.pop_back();
     }
 
@@ -163,15 +163,15 @@ int main() {
     
 
     // init state
-    init.push_back(1);
-    init.push_back(2);
-    init.push_back(3);
-    init.push_back(4);
-    init.push_back(5);
-    init.push_back(6);
-    init.push_back(7);
-    init.push_back(0);
     init.push_back(8);
+    init.push_back(7);
+    init.push_back(1);
+    init.push_back(6);
+    init.push_back(0);
+    init.push_back(2);
+    init.push_back(5);
+    init.push_back(4);
+    init.push_back(3);
 
 
     // main "driver" code
@@ -179,20 +179,18 @@ int main() {
     pq.push(init);
     // loop if frontier is not empty OR solution not found
     while(pq.size() != 0 && !solutionFound){
-
+        // top value in our priority queue
         vector<int> temp = pq.top();
         cout << "---------------------------" << endl;
         cout << "top" << endl;
-        // print top
+        // print top value
         for(int i = 0; i<pq.top().size(); i++){
             cout << pq.top()[i];
             if(i == 2 || i == 5)
                 cout << endl;
         }
-    
-
         cout << endl;
-
+        // pop value
         pq.pop();
         // if temp state == goal state
         if(temp == goal){
@@ -202,11 +200,6 @@ int main() {
         // temp state != goal state
         } else if(!solutionFound) {
             explored.push_back(temp);
-            // if explored is empty push top value of priority queue
-//            if(explored.size() == 0 && pq.size() == 0){
-//                cout << "explored size 0";
-//                explored.push_back(temp);
-//            }
 
             // first find zero location
             zero_index = myPuzzle.find_zero(temp);
@@ -236,38 +229,41 @@ int main() {
             if(valid_state(m_right))
                 pos_states.push_back(m_right);
 
-            // check if pos_states is in frontier or explored
+            // check if pos_states(possible states) is in the frontier or explored
             while(!(pos_states.empty())){
                 // not in frontier
                 if(!(inFrontier(pq,pos_states))){
                     // not in explored
-                    cout << "not in frontier: ";
+                    ///cout << "not in frontier: ";
                     for(int i = 0; i<pos_states.front().size(); i++){
-                        cout << pos_states.back()[i];
+                        ///cout << pos_states.back()[i];
                     }
-                    cout << endl;
+                    ///cout << endl;
                     if(!(inExplored(explored, pos_states))){
-                        cout << "not in explored: ";
+                        ///cout << "not in explored: ";
                         for(int i = 0; i<pos_states.front().size(); i++){
-                            cout << pos_states.back()[i];
+                            ///cout << pos_states.back()[i];
                         }
                         pq.push(pos_states.back());
                         //cout << endl;
+                    // if inExplored fails, find the states that do not exist and push to explored
+                    } else {
+                        
                     }
                 } else {
-                    cout << "yes in frontier or explored: ";
+                    //cout << "yes in frontier or explored: ";
                     for(int i = 0; i<pos_states.front().size(); i++){
-                        cout << pos_states.front()[i];
+                        //cout << pos_states.front()[i];
                     }
-                    cout << endl;
+                    ///cout << endl;
                 }
-                cout << endl;
-                cout << "** explored: " << explored.size() << endl;
+                ///cout << endl;
+                ///cout << "** explored: " << explored.size() << endl;
                 //cout << "pos size before pop: " << pos_states.size() <<  endl;
                 pos_states.pop_back();
                 //cout << "pos size after pop: " << pos_states.size() <<  endl;
             }
-            cout << "outside while" << endl;
+            ///cout << "outside while" << endl;
         }
     }
 

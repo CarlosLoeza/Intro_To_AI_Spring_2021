@@ -21,8 +21,6 @@ public:
     // variables
     int zero_index;
     
-    
-    
     // methods
     vector<int> move_up(vector<int> init, int zero_index);
     vector<int> move_down(vector<int> init, int zero_index);
