@@ -8,20 +8,30 @@
 #ifndef Problem_hpp
 #define Problem_hpp
 
-#include <stdio.h>
 
+#include <stdio.h>
+#include <deque>
+#include <vector>
+#include <queue>
+
+using namespace std;
 
 class Problem {
 public:
     // variables
-    int init_state[3][3] = {{1,2,3},{4,5,6},{7,0,8}};
-    int goal_state[3][3] = {{1,2,3}, {4,5,6},{7,8,0}};
-    // methods
-    int move_up();
-    int move_down();
-    int move_left();
-    int move_right();
+    int zero_index;
     
+    
+    
+    // methods
+    vector<int> move_up(vector<int> init, int zero_index);
+    vector<int> move_down(vector<int> init, int zero_index);
+    vector<int> move_left(vector<int> init, int zero_index);
+    vector<int> move_right(vector<int> init, int zero_index);
+    int find_zero(vector<int> init);
+    int get_cost(vector<int>);
     
 };
+
+
 #endif /* Problem_hpp */
