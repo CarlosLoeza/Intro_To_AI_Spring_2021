@@ -16,17 +16,22 @@
 
 using namespace std;
 
+
+
 class Problem {
 public:
-    // variables
+    // * variables *
     int zero_index;
     
-    // methods
+    // * methods *
+    // purpose of each method is placed above the function in Problem.cpp
     vector<int> move_up(vector<int> init, int zero_index);
     vector<int> move_down(vector<int> init, int zero_index);
     vector<int> move_left(vector<int> init, int zero_index);
     vector<int> move_right(vector<int> init, int zero_index);
-    int find_zero(vector<int> init);
+    bool valid_state(vector<int> state);
+    vector<vector<int>> unique_states(vector<vector<int>> explored, vector<vector<int>> pos_states);
+    int find_value(vector<int> init, int number);
     int get_cost(vector<int>);
     
 };

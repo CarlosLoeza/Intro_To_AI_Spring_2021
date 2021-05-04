@@ -77,10 +77,62 @@ vector<int> Problem::move_right(vector<int> init, int zero_index){
         return failed;
 }
 
+// Make sure the move is valid. Ex: value on the top right corner
+// can only move right and down
+bool Problem::valid_state(vector<int> state){
+    if(state.size() > 1)
+        return true;
+    else
+        return false;
+}
+
+
+
+
+// Check if possible states(moves) are in explored
+vector<vector<int>> Problem::unique_states(vector<vector<int>> explored, vector<vector<int>> pos_states){
+    vector<int> temp_possible = {};
+    vector<vector<int>> t_explored;
+    vector<vector<int>> new_states;
+    bool found = false;
+    
+    t_explored = explored;
+    
+    ///cout << "temp_possible: ";
+    for(int i = 0; i<pos_states.front().size(); i++){
+        temp_possible.push_back(pos_states.back()[i]);
+        ///cout << pos_states.back()[i];
+        
+    }
+    ///cout << endl;
+    pos_states.pop_back();
+    
+    while(!(t_explored.empty())){
+        vector<int> temp_explored = {};
+        ///cout << "temp_explored: ";
+        for(int i =0; i<explored.front().size(); i++){
+            temp_explored.push_back(t_explored.back()[i]);
+            ///cout << t_explored.back()[i];
+        }
+        if(temp_explored == temp_possible)
+            found = true;
+        ///cout << endl;
+        t_explored.pop_back();
+    }
+    if(!found)
+        new_states.push_back(temp_possible);
+    ///cout << endl;
+    
+    return new_states;
+
+}
+
+
+
 // Find the zero
-int Problem::find_zero(vector<int> init){
+int Problem::find_value(vector<int> init, int number){
     int position; // get position of
-    auto it = find(init.begin(), init.end(), 0);
+    auto it = find(init.begin(), init.end(), number);
     
     // If zero postion is located
     if (it != init.end())
