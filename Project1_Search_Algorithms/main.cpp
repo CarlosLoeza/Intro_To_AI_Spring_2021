@@ -2,7 +2,7 @@
 //  main.cpp
 //  Project1_Search_Algorithms
 //
-//  
+//
 //
 
 
@@ -186,8 +186,6 @@ int misplaced_tiles(vector<int> temp){
 }
 
 
-// Comparison object to be used to order the
-//struct euc_comp
 struct comp
 {
     bool operator()(vector<int> a, vector<int> b)
@@ -272,12 +270,12 @@ int main()
     vector<int> m_right;
     vector<int> m_up;
     vector<int> m_down;
-    
-    // explored states
-    //vector<vector<int>> explored = {};
     // checks if our puzzle matches the goal state
     bool solutionFound = false;
-    long iterations = 0;
+    // depth = g(n)
+    long depth = 0;
+    // pq = frontier
+    priority_queue<vector<int>, vector<vector<int>>, comp> pq;
     
     Problem myPuzzle;
     
@@ -293,7 +291,7 @@ int main()
     init.push_back(3);
 
 
-    priority_queue<vector<int>, vector<vector<int>>, comp> pq;
+    
 
     // main "driver" code
     // push our initial state to frontier
@@ -307,18 +305,21 @@ int main()
         // print top value
         for(int i = 0; i<pq.top().size(); i++){
             cout << pq.top()[i] << " ";
+            // if we reach the end of row, start a new line
+            // ex: 1,2,3 newline
+            //     3,4,5 newline etc.
             if(i == 2 || i == 5)
                 cout << endl;
         }
         cout << endl;
-        // pop value
+        // pop top value in our priority queue
         pq.pop();
-        //cout << "g(n): " << iterations << endl;
-        iterations++;
+        cout << "g(n): " << depth << endl;
+        depth++;
         
         cost = euclidean_cost(temp);
-        //cout << "h(n): " << cost << endl;
-        //cout << "Total cost: " << cost+iterations << endl;
+        cout << "h(n): " << cost << endl;
+        cout << "Total cost: " << cost+depth << endl;
 
         if(cost ==0 || temp == goal){
             cout << "yes goal found" << endl;
@@ -365,20 +366,19 @@ int main()
                     cur_pos_state.push_back(pos_states.back()[i]);
                 }
                 
-                // not in frontier
+                // possible state is not in frontier
                 if(!(inFrontier(pq,cur_pos_state))){
-       
+                    // possible state is not in explored states
                     if(!(inExplored(explored, cur_pos_state))){
-                       
+                        // push to priority queue
                         pq.push(cur_pos_state);
-
                     }
                 }
-                    
-
+                // pop the the possible state we just checked in order to check the next possible state
                 pos_states.pop_back();
-                
-                cur_pos_state = {}; // clear to use again
+                // clear to use again. If we don't clear, values will be carried
+                // to the next iteration.
+                cur_pos_state = {};
             }
         }
     }

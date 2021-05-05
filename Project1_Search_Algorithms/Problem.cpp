@@ -10,6 +10,7 @@
 #include <iostream>
 using namespace std;
 
+// Checks to see if our zero index can move up
 vector<int> Problem::move_up(vector<int> init, int zero_index){
     // checks to make sure we can move our zero up
     int top_spot_index = zero_index-3;
@@ -28,6 +29,7 @@ vector<int> Problem::move_up(vector<int> init, int zero_index){
         return failed;
 }
 
+// Checks to see if our zero index can move down
 vector<int> Problem::move_down(vector<int> init, int zero_index){
     // checks to make sure we can move our zero up
     int down_spot_index = zero_index+3;
@@ -45,6 +47,8 @@ vector<int> Problem::move_down(vector<int> init, int zero_index){
         return failed;
 
 }
+
+// Checks to see if our zero index can move left
 vector<int> Problem::move_left(vector<int> init, int zero_index){
     // holds the left spot index incase it is a valid move(move left)
     int left_spot_index = zero_index-1;
@@ -61,6 +65,8 @@ vector<int> Problem::move_left(vector<int> init, int zero_index){
     } else
         return failed;
 }
+
+// Checks to see if our zero index can move right
 vector<int> Problem::move_right(vector<int> init, int zero_index){
     // holds the right spot index incase it is a valid move(move right)
     int right_spot_index = zero_index+1;
@@ -89,7 +95,7 @@ bool Problem::valid_state(vector<int> state){
 
 
 
-// Find the zero
+// Find the location of a given number in our puzzle and return index
 int Problem::find_value(vector<int> init, int number){
     int position; // get position of
     auto it = find(init.begin(), init.end(), number);
