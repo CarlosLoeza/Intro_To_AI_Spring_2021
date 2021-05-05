@@ -2,10 +2,7 @@
 //  Problem.cpp
 //  Project1_Search_Algorithms
 //
-//  Created by Carlos Loeza on 4/30/21.
 //
-
-
 #include "Problem.hpp"
 #include <iostream>
 using namespace std;
@@ -17,7 +14,7 @@ vector<int> Problem::move_up(vector<int> init, int zero_index){
     // return vector with -1 to let us know we cannot perform this move
     vector<int> failed(1,-1);
 
-
+    // if index > -1, is not ouf of bounds
     if(top_spot_index > -1){
         // value above our zero
         int &top_spot_value = init[top_spot_index];
