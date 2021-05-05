@@ -2,17 +2,19 @@
 //  main.cpp
 //  Project1_Search_Algorithms
 //
-//  Created by Carlos Loeza on 4/30/21.
+//  
 //
 
-#include <iostream>
-#include <deque>
-#include <vector>
+
 #include "Problem.hpp"
+#include <iostream>
+#include <map>
+#include <iterator>
+#include <vector>
 using namespace std;
 
 
-// ***** new ****
+// This function will return the coordinates of where
 queue<int> get_current_location(int spot){
     queue<int> location;
     // first row
@@ -80,14 +82,31 @@ queue<int> get_original_location(int number){
     }else if(number ==8){
         location.push(2);
         location.push(1);
-    } else {
+    } else if(number == 0){
         location.push(2);
         location.push(2);
     }
     return location;
 }
 
-//
+
+// Find index of our number
+int find_value(vector<int> init, int number){
+    int position; // get position of
+    auto it = find(init.begin(), init.end(), number);
+    
+    // If zero postion is located
+    if (it != init.end())
+        position = it - init.begin();
+    else
+        position = -1;
+    
+    return position;
+}
+
+
+// Determines the moves we need to make by doing final_position - initial position
+// Ex: if #8 is at the top right position (0,0) we need to move 2 steps down and 2 steps right (2,2)
 queue<int> get_difference(queue<int> init_postion, queue<int> final_position){
     int init_x ;
     int init_y ;
@@ -99,17 +118,11 @@ queue<int> get_difference(queue<int> init_postion, queue<int> final_position){
     init_y = init_postion.front();
     init_postion.pop();
     init_x = init_postion.front();
-//    cout << "init_y: " << init_y << endl;
-//    cout << "init_x: " << init_x << endl;
     
     final_y = final_position.front();
     final_position.pop();
     final_x =final_position.front();
-//    cout << "final_y: " << final_y << endl;
-//    cout << "final_x: " << final_x << endl;
-//
-    
-//    cout << "result_x: " << final_x-init_x << endl;
+
     queue<int> result_coordinate;
     
     result_coordinate.push(final_y-init_y);
@@ -118,14 +131,31 @@ queue<int> get_difference(queue<int> init_postion, queue<int> final_position){
     return result_coordinate;
 }
 
+// Count the number of moves we need to make in the x and y coordinates
+// Use absolute value since we only care about the moves and not direction
 int count_moves(int y, int x){
     return(abs(y)+abs(x));
     
 }
 
-// -----------
-
-// *********************************************************
+// ******
+int euclidean_cost(vector<int> init){
+    int total_cost = 0;
+    for(int i=1; i<9;i++){
+        int value_index = find_value(init, init[i]);
+        queue<int> current_spot = get_current_location(value_index);
+        queue<int> intended = get_original_location(init[i]);
+        // get difference from current index and inteded index (final - initial)
+        queue<int> diff = get_difference(current_spot, intended);
+        int diff_y = diff.front();
+        diff.pop();
+        int diff_x = diff.front();
+        // perform vertical moves
+        ///cout << count_moves(diff_y, diff_x);
+        total_cost += count_moves(diff_y, diff_x);
+    }
+    return total_cost;
+}
 
 
 // Get h(n) of puzzle
@@ -155,88 +185,69 @@ int misplaced_tiles(vector<int> temp){
     return count;
 }
 
-// Comparison object to be used to order the heap
+
+// Comparison object to be used to order the
+//struct euc_comp
 struct comp
 {
     bool operator()(vector<int> a, vector<int> b)
     {
-        return (misplaced_tiles(a)) > (misplaced_tiles(b));
+        return (euclidean_cost(a)) > (euclidean_cost(b));
     }
 };
 
+
+
 // check if state is in frontier
-bool inFrontier(priority_queue<vector<int>, vector<vector<int>>, comp> pq, vector<vector<int>> pos_states){
+bool inFrontier(priority_queue<vector<int>, vector<vector<int>>, comp> pq, vector<int> pos_state){
     vector<int> cur_pq_state;
     vector<int> cur_pos_state;
+    vector<int> hold_pos_states = pos_state;
+    bool found = false;
 
-    while(!(pq.empty())){
-
+    //cout << "in frontier\n";
+    // while priority queue is not empty
+    while(!pq.empty() && !found){
+        // get the values of the
         for(int i = 0; i<pq.top().size(); i++){
             cur_pq_state.push_back(pq.top()[i]);
-            cur_pos_state.push_back(pos_states.front()[i]);
+            
         }
-        if(cur_pq_state == cur_pos_state)
-            return true;
-        else
-            pq.pop();
+
+        
+        if(cur_pq_state == pos_state)
+            found = true;
+        pq.pop();
+    
+        // if pq != possible state
+        // load pos_states again before we loop since we popped them off
+        hold_pos_states = pos_state;
     }
 
-    return false;
+    return found;
 }
 
-bool inExplored(vector<vector<int>> explored, vector<vector<int>> pos_states){
+bool inExplored(map<vector<int>, int> explored, vector<int> pos_state){
     vector<int> cur_explored_state;
     vector<int> cur_pos_state;
-    vector<vector<int>> temp_explored; // use temp to hold our explored states so we can pop recover popped states
+    vector<int> hold_map_vector;
+    bool found = false;
 
-    //cout << "explored size: " << explored.size() << endl;
-    ///cout << "pos_state_size: "<< pos_states.size() << endl;;
-    // loop until there is no more possible states (move_up, move_down,etc.) left
-    while(!(pos_states.empty())){
-        cur_pos_state = {};
-        temp_explored = explored; // assign our explored states to temp_explored
-        // for loop to get current possible state (move_up, move_down,etc.)
-        ///cout << "cur_pos_state: ";
-        for(int i = 0; i<pos_states.front().size(); i++){
-            ///cout << pos_states.back()[i];
-            cur_pos_state.push_back(pos_states.back()[i]);
-        }
-        //cout << endl;
-            // for loop to get the current explored state
-        while(!temp_explored.empty()){
-            cur_explored_state = {}; // clear
-            ///cout << "cur_explore state: ";
-            for(int j =0; j<temp_explored.front().size(); j++){
-                ///cout << temp_explored.back()[j];
-                cur_explored_state.push_back(temp_explored.back()[j]);
-            }
-            ///cout << endl;
-            if(cur_explored_state == cur_pos_state)
-                return true;
-            else
-                temp_explored.pop_back();
-            ///cout << endl;
-        }
-        ///cout << "out" << endl;
-        pos_states.pop_back();
+    for(auto it = explored.find(pos_state); it!= explored.end(); it++){
+        found = true;
     }
-    
-    while(!(explored.empty())){
-        for(int i = 0; i<explored.front().size(); i++){
-            cur_explored_state.push_back(explored.front()[i]);
-            cur_pos_state.push_back(pos_states.front()[i]);
-        }
-        if(cur_explored_state == cur_pos_state)
-            return true;
-        else
-            explored.pop_back();
-    }
-    return false;
+
+    return found;
 }
 
 
 
-int main() {
+// Driver code
+int main()
+{
+
+    map<vector<int>, int> states;   // possible states
+    map<vector<int>, int> explored;     // explored state
     // Our initial state
     vector<int> init;
     // goal state
@@ -247,6 +258,9 @@ int main() {
     vector<int> cur_best;
     // possible paths from parent state
     vector<vector<int>> pos_states;
+    vector<int> cur_pos_state;
+    // cost =  h(n)
+    int cost;
     // zero location
     int zero_index;
     // place our numbers in the first,second,and third position in a row
@@ -258,11 +272,9 @@ int main() {
     vector<int> m_right;
     vector<int> m_up;
     vector<int> m_down;
-    // priority queue aka frontier
-    priority_queue<vector<int>, vector<vector<int>>, comp> pq;
     
     // explored states
-    vector<vector<int>> explored = {};
+    //vector<vector<int>> explored = {};
     // checks if our puzzle matches the goal state
     bool solutionFound = false;
     long iterations = 0;
@@ -270,16 +282,18 @@ int main() {
     Problem myPuzzle;
     
     // init state
-    init.push_back(1);
     init.push_back(8);
-    init.push_back(2);
+    init.push_back(7);
+    init.push_back(1);
+    init.push_back(6);
     init.push_back(0);
+    init.push_back(2);
+    init.push_back(5);
     init.push_back(4);
     init.push_back(3);
-    init.push_back(7);
-    init.push_back(6);
-    init.push_back(5);
 
+
+    priority_queue<vector<int>, vector<vector<int>>, comp> pq;
 
     // main "driver" code
     // push our initial state to frontier
@@ -292,23 +306,27 @@ int main() {
         cout << "top" << endl;
         // print top value
         for(int i = 0; i<pq.top().size(); i++){
-            cout << pq.top()[i];
+            cout << pq.top()[i] << " ";
             if(i == 2 || i == 5)
                 cout << endl;
         }
         cout << endl;
         // pop value
         pq.pop();
+        //cout << "g(n): " << iterations << endl;
         iterations++;
-        cout << "iterations: " << iterations << endl;
-        // if temp state == goal state
-        if(temp == goal){
+        
+        cost = euclidean_cost(temp);
+        //cout << "h(n): " << cost << endl;
+        //cout << "Total cost: " << cost+iterations << endl;
+
+        if(cost ==0 || temp == goal){
             cout << "yes goal found" << endl;
             solutionFound = true;
 
         // temp state != goal state
         } else if(!solutionFound) {
-            explored.push_back(temp);
+            explored.insert({temp, cost});
 
             // first find zero location
             zero_index = myPuzzle.find_value(temp, 0);
@@ -338,49 +356,34 @@ int main() {
             if(myPuzzle.valid_state(m_right))
                 pos_states.push_back(m_right);
 
+            
             // check if pos_states(possible states) is in the frontier or explored
             while(!(pos_states.empty())){
-                // not in frontier
-                if(!(inFrontier(pq,pos_states))){
-                    // not in explored
-                    ///cout << "not in frontier: ";
-                    for(int i = 0; i<pos_states.front().size(); i++){
-                        ///cout << pos_states.back()[i];
-                    }
-                    ///cout << endl;
-                    if(!(inExplored(explored, pos_states))){
-                        ///cout << "not in explored: ";
-                        for(int i = 0; i<pos_states.front().size(); i++){
-                            ///cout << pos_states.back()[i];
-                        }
-                        pq.push(pos_states.back());
-                        //cout << endl;
-                    // if inExplored fails, find the states that do not exist and push to explored
-                    } else {
-                        vector<vector<int>> not_explored =myPuzzle.unique_states(explored, pos_states);
-                        while(!(not_explored.empty())){
-                            pq.push(not_explored.back());
-                            not_explored.pop_back();
-                        }
-                    }
-                } else {
-                    //cout << "yes in frontier or explored: ";
-                    for(int i = 0; i<pos_states.front().size(); i++){
-                        //cout << pos_states.front()[i];
-                    }
-                    ///cout << endl;
+                
+                //cout << "Made it in 2 " << endl;
+                for(int i = 0; i<pos_states.front().size(); i++){
+                    cur_pos_state.push_back(pos_states.back()[i]);
                 }
-                ///cout << endl;
-                ///cout << "** explored: " << explored.size() << endl;
-                //cout << "pos size before pop: " << pos_states.size() <<  endl;
+                
+                // not in frontier
+                if(!(inFrontier(pq,cur_pos_state))){
+       
+                    if(!(inExplored(explored, cur_pos_state))){
+                       
+                        pq.push(cur_pos_state);
+
+                    }
+                }
+                    
+
                 pos_states.pop_back();
-                //cout << "pos size after pop: " << pos_states.size() <<  endl;
+                
+                cur_pos_state = {}; // clear to use again
             }
-            ///cout << "outside while" << endl;
         }
     }
 
-    
     return 0;
 }
+
 
