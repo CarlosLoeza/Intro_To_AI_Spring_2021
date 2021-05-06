@@ -1,16 +1,3 @@
-////
-////  main.cpp
-////  Project1_Search_Algorithms
-////
-////
-////
-//
-//
-//
-//
-
-
-
 //
 //  main.cpp
 //  Project1_Search_Algorithms
@@ -72,6 +59,10 @@ queue<int> get_current_location(int spot){
     return location;
 }
 
+
+// Get the original location of number given.
+// Use this to determine if number is in the right location
+// ex: is #1 at index (0,0)
 queue<int> get_original_location(int number){
     queue<int> location;
     // first row
@@ -158,7 +149,8 @@ int count_moves(int y, int x){
     
 }
 
-// ******
+// get the cost of vector by performing euclidean
+// h(n)
 int euclidean_cost(vector<int> init){
     int total_cost = 0;
     for(int i=1; i<9;i++){
@@ -178,7 +170,8 @@ int euclidean_cost(vector<int> init){
 }
 
 
-// Get h(n) of puzzle
+// get the cost of vector by counting the amount of misplaced tiles
+// h(n)
 int misplaced_tiles(vector<int> state){
     int cur_index; // get position of specific number (1-8)
     int goal_index =0; // goal index
@@ -211,7 +204,7 @@ int misplaced_tiles(vector<int> state){
 
 
 
-
+// puts vectors is ascendig order based on the algorithm chosen from user
 struct comp
 {
     bool operator()(vector<int> a, vector<int> b)
@@ -227,7 +220,8 @@ struct comp
 
 
 
-// check if state is in frontier
+// check if possible states are in frontier
+// possible states are moves (ex: move up, move down, move left, move right)
 bool inFrontier(priority_queue<vector<int>, vector<vector<int>>, comp> pq, vector<int> pos_state){
     vector<int> cur_pq_state;
     vector<int> cur_pos_state;
@@ -256,6 +250,8 @@ bool inFrontier(priority_queue<vector<int>, vector<vector<int>>, comp> pq, vecto
     return found;
 }
 
+// check if possible states have already been explored
+// possible states are moves (ex: move up, move down, move left, move right)
 bool inExplored(map<vector<int>, int> explored, vector<int> pos_state){
     vector<int> cur_explored_state;
     vector<int> cur_pos_state;
@@ -269,21 +265,13 @@ bool inExplored(map<vector<int>, int> explored, vector<int> pos_state){
     return found;
 }
 
-//
-
-
-
 
 // Driver code
 int main()
 {
-    
-    
-
-    
     map<vector<int>, int> states;   // possible states
     map<vector<int>, int> explored;     // explored state
-    // Our initial state
+    // Our initial puzzle state
     vector<int> init;
     // goal state
     vector<int> goal = {1,2,3,4,5,6,7,8,0};
@@ -322,18 +310,6 @@ int main()
     
     Problem myPuzzle;
     
-    // init state
-    init.push_back(0);
-    init.push_back(1);
-    init.push_back(2);
-    init.push_back(4);
-    init.push_back(5);
-    init.push_back(3);
-    init.push_back(7);
-    init.push_back(8);
-    init.push_back(6);
-
-    
    
     cout << "Welcome to ________ 8 puzzle solver \n";
     cout << "Type 1 to select default puzzle or type 2 to enter your own \n";
@@ -365,12 +341,8 @@ int main()
     cin >> SEARCH_SELECTED;
         
     
-        
     
-    
-    
-
-    // main "driver" code
+    // *** main "driver" code ***
     // push our initial state to frontier
     pq.push(init);
     // loop if frontier is not empty OR solution not found
