@@ -1,3 +1,16 @@
+////
+////  main.cpp
+////  Project1_Search_Algorithms
+////
+////
+////
+//
+//
+//
+//
+
+
+
 //
 //  main.cpp
 //  Project1_Search_Algorithms
@@ -12,6 +25,13 @@
 #include <iterator>
 #include <vector>
 using namespace std;
+
+
+// ** Global varialbe **
+// Asks user for search algorithm.
+// Used global since I created 1 struct to hold the three search algo. (Uniform, Misplaced, and Euclidean)
+int SEARCH_SELECTED;
+
 
 
 // This function will return the coordinates of where
@@ -159,38 +179,49 @@ int euclidean_cost(vector<int> init){
 
 
 // Get h(n) of puzzle
-int misplaced_tiles(vector<int> temp){
+int misplaced_tiles(vector<int> state){
     int cur_index; // get position of specific number (1-8)
-    int goal_index; // goal index
+    int goal_index =0; // goal index
     int count=0; // # of misplaced tiles
-    vector<int> new_temp;
+   // vector<int> new_temp;
     
 
     // find misplaced tiles (1-8) since we don't count 0 as misplaced
     for(int i = 1; i<9; i++){
         // iterator from beginning to end, looking for value i
-        auto it = find(new_temp.begin(), new_temp.end(), i);
+        auto it = find(state.begin(), state.end(), i);
+        
         // if number found
-        if (it != new_temp.end()){
-            cur_index = it - new_temp.begin(); // index for value i (i = 1-8)
-            int &value = new_temp[cur_index]; // value at index i
+        if (it != state.end()){
+            // get current index of number we are looking for (1-8)
+            cur_index = distance(state.begin(), it);
+            int value = state[cur_index]; // get value at index i to see if it is in the correct spot
             goal_index = value-1; // goal index is always one less (ex: number 1 goes at index 0)
-            // Correct spot
+
+            
+            // if not in the correct index
+            // ex: value 1 should be at index 0
             if(cur_index != goal_index){
                 count++;
             }
         }
     }
-
     return count;
 }
+
+
 
 
 struct comp
 {
     bool operator()(vector<int> a, vector<int> b)
     {
-        return (euclidean_cost(a)) > (euclidean_cost(b));
+        if(SEARCH_SELECTED == 2)
+            return (euclidean_cost(a)) > (euclidean_cost(b));
+        else if(SEARCH_SELECTED == 3)
+            return (misplaced_tiles(a)) > (misplaced_tiles(b));
+        else
+            return (-1);
     }
 };
 
@@ -238,18 +269,26 @@ bool inExplored(map<vector<int>, int> explored, vector<int> pos_state){
     return found;
 }
 
+//
+
+
 
 
 // Driver code
 int main()
 {
+    
+    
 
+    
     map<vector<int>, int> states;   // possible states
     map<vector<int>, int> explored;     // explored state
     // Our initial state
     vector<int> init;
     // goal state
     vector<int> goal = {1,2,3,4,5,6,7,8,0};
+    //  default vector
+    vector<int> def = {1,0,3,4,2,6,7,5,8};
     // This vector will hold the results when we perform move_up,move_down,etc.
     vector<int> temp;
     // Holds the best node/path based on score
@@ -276,21 +315,59 @@ int main()
     long depth = 0;
     // pq = frontier
     priority_queue<vector<int>, vector<vector<int>>, comp> pq;
+    // user response to default puzzle or custom
+    int response;
+    // puzzle values from user
+    int puzzle_values;
     
     Problem myPuzzle;
     
     // init state
-    init.push_back(8);
-    init.push_back(7);
-    init.push_back(1);
-    init.push_back(6);
     init.push_back(0);
+    init.push_back(1);
     init.push_back(2);
-    init.push_back(5);
     init.push_back(4);
+    init.push_back(5);
     init.push_back(3);
+    init.push_back(7);
+    init.push_back(8);
+    init.push_back(6);
 
-
+    
+   
+    cout << "Welcome to ________ 8 puzzle solver \n";
+    cout << "Type 1 to select default puzzle or type 2 to enter your own \n";
+    cout << "Default (1): \n";
+    cout << "1 0 3 \n";
+    cout << "4 2 6 \n";
+    cout << "7 5 8 \n";
+    cout << endl;
+    cin >> response;
+    
+    if(response ==1)
+        init = def; // initial vector is default
+    else{
+        cout << "Enter numbers ONLY 0-8. System does not check if value is out of bounds \n";
+        for(int i = 0; i<3; i++){
+            for(int j =0; j<3; j++){
+                cout << "Enter row " << i << ", column: " << j << " value";
+                cin >> puzzle_values;
+                init.push_back(puzzle_values);
+                
+            }
+        }
+        
+    }
+    
+    cout << "Enter your choice of algorithm \n";
+    cout << "2. A* with Misplaced Tile Heuristic \n";
+    cout << "3. A* with Eucledian distance heuristic \n";
+    cin >> SEARCH_SELECTED;
+        
+    
+        
+    
+    
     
 
     // main "driver" code
@@ -301,7 +378,7 @@ int main()
         // top value in our priority queue
         vector<int> temp = pq.top();
         cout << "---------------------------" << endl;
-        cout << "top" << endl;
+        cout << "State" << endl;
         // print top value
         for(int i = 0; i<pq.top().size(); i++){
             cout << pq.top()[i] << " ";
@@ -315,13 +392,23 @@ int main()
         // pop top value in our priority queue
         pq.pop();
         cout << "g(n): " << depth << endl;
-        depth++;
         
-        cost = euclidean_cost(temp);
+        
+        // get cost based on the type of algorithm we are using
+        // ex: misplaced tiles or euclidean
+        if(SEARCH_SELECTED == 2)
+            cost = misplaced_tiles(temp);
+        else
+            cost = euclidean_cost(temp);
+            
+            
+        
+        
+        //cost = misplaced_tiles(temp);
         cout << "h(n): " << cost << endl;
         cout << "Total cost: " << cost+depth << endl;
 
-        if(cost ==0 || temp == goal){
+        if(temp == goal){
             cout << "yes goal found" << endl;
             solutionFound = true;
 
@@ -381,9 +468,9 @@ int main()
                 cur_pos_state = {};
             }
         }
+        depth++;
     }
-
+     
     return 0;
 }
-
 
