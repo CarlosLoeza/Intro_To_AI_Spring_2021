@@ -210,9 +210,9 @@ struct comp
     bool operator()(vector<int> a, vector<int> b)
     {
         if(SEARCH_SELECTED == 2)
-            return (euclidean_cost(a)) > (euclidean_cost(b));
-        else if(SEARCH_SELECTED == 3)
             return (misplaced_tiles(a)) > (misplaced_tiles(b));
+        else if(SEARCH_SELECTED == 3)
+            return (euclidean_cost(a)) > (euclidean_cost(b));
         else
             return (-1);
     }
@@ -276,7 +276,8 @@ int main()
     // goal state
     vector<int> goal = {1,2,3,4,5,6,7,8,0};
     //  default vector
-    vector<int> def = {1,0,3,4,2,6,7,5,8};
+    //vector<int> def = {1,0,3,4,2,6,7,5,8};
+    vector<int> def = {8,7,1,6,0,2,5,4,3};
     // This vector will hold the results when we perform move_up,move_down,etc.
     vector<int> temp;
     // Holds the best node/path based on score
@@ -288,10 +289,6 @@ int main()
     int cost;
     // zero location
     int zero_index;
-    // place our numbers in the first,second,and third position in a row
-    int first;
-    int second;
-    int third;
     // vectors hold the result state after a move is applied (ex:move_left)
     vector<int> m_left;
     vector<int> m_right;
@@ -311,13 +308,18 @@ int main()
     Problem myPuzzle;
     
    
+    
+    
+    
+    
+    
+    
     cout << "Welcome to ________ 8 puzzle solver \n";
     cout << "Type 1 to select default puzzle or type 2 to enter your own \n";
     cout << "Default (1): \n";
     cout << "1 0 3 \n";
     cout << "4 2 6 \n";
     cout << "7 5 8 \n";
-    cout << endl;
     cin >> response;
     
     if(response ==1)
@@ -340,7 +342,6 @@ int main()
     cout << "3. A* with Eucledian distance heuristic \n";
     cin >> SEARCH_SELECTED;
         
-    
     
     // *** main "driver" code ***
     // push our initial state to frontier
@@ -372,8 +373,6 @@ int main()
             cost = misplaced_tiles(temp);
         else
             cost = euclidean_cost(temp);
-            
-            
         
         
         //cost = misplaced_tiles(temp);
@@ -381,13 +380,10 @@ int main()
         cout << "Total cost: " << cost+depth << endl;
 
         if(temp == goal){
-            cout << "yes goal found" << endl;
             solutionFound = true;
-
         // temp state != goal state
         } else if(!solutionFound) {
             explored.insert({temp, cost});
-
             // first find zero location
             zero_index = myPuzzle.find_value(temp, 0);
             // expand the chosen temp's children aka possible moves
@@ -442,7 +438,7 @@ int main()
         }
         depth++;
     }
-     
+    
     return 0;
 }
 
